@@ -1,0 +1,2846 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر HTML احترافي</title>
+    <link rel="stylesheet" href="editor.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<style>
+    /* ملف editor.css - أنماط محرر HTML الاحترافي */
+
+/* الأساسيات */
+:root {
+  --primary-color: #4285f4;
+  --secondary-color: #34a853;
+  --danger-color: #ea4335;
+  --warning-color: #fbbc05;
+  --dark-color: #202124;
+  --light-color: #f8f9fa;
+  --gray-color: #5f6368;
+  --border-color: #dadce0;
+  --hover-color: #f1f3f4;
+  --selected-color: #e8f0fe;
+  --menu-bg: #2d2d2d;
+  --menu-text: #ffffff;
+  --toolbar-bg: #f1f3f4;
+  --workspace-bg: #ffffff;
+  --properties-bg: #f8f9fa;
+  --statusbar-bg: #2d2d2d;
+  --statusbar-text: #e8eaed;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--light-color);
+  color: var(--dark-color);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* شريط القوائم */
+.menu-bar {
+  display: flex;
+  background-color: var(--menu-bg);
+  color: var(--menu-text);
+  padding: 0 10px;
+  height: 40px;
+  align-items: center;
+  user-select: none;
+}
+
+.menu-item {
+  position: relative;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  border-radius: 3px;
+}
+
+.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item i {
+  font-size: 12px;
+}
+
+.submenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--menu-bg);
+  min-width: 200px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 4px 4px;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.menu-item:hover .submenu {
+  display: block;
+}
+
+.submenu-item {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.submenu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.submenu-divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 4px 0;
+}
+
+/* شريط الأدوات */
+.toolbar {
+  display: flex;
+  background-color: var(--toolbar-bg);
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border-color);
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
+  border-right: 1px solid var(--border-color);
+}
+
+.tool-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--gray-color);
+  font-size: 14px;
+}
+
+.tool-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: var(--border-color);
+}
+
+.tool-btn i {
+  pointer-events: none;
+}
+
+.tool-select {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tool-select:hover {
+  border-color: #bdc1c6;
+}
+
+/* تبويبات الواجهة */
+.view-tabs {
+  display: flex;
+  background-color: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.view-tab {
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  border-right: 1px solid var(--border-color);
+  color: var(--gray-color);
+}
+
+.view-tab.active {
+  background-color: var(--workspace-bg);
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.view-tab i {
+  font-size: 12px;
+}
+/* إضافة إلى ملف editor.css */
+[data-theme="dark"] {
+    --menu-bg: #1e1e1e;
+    --toolbar-bg: #2d2d2d;
+    --workspace-bg: #252525;
+    --properties-bg: #2d2d2d;
+    --dark-color: #f8f9fa;
+    --light-color: #202124;
+    --border-color: #444;
+}
+
+.grid-enabled {
+    background-image: linear-gradient(var(--border-color) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+}
+
+/* تحديث المتغيرات عند تغيير حجم الشبكة */
+.grid-enabled {
+    --grid-size: ${editorSettings.gridSize}px;
+}
+/* المنطقة الرئيسية */
+.main-area {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* صندوق الأدوات */
+.toolbox {
+  width: 240px;
+  background-color: var(--workspace-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  z-index: 10;
+}
+
+.toolbox.collapsed {
+  width: 40px;
+}
+
+.toolbox-header {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 500;
+  color: var(--gray-color);
+}
+
+.toolbox-header i {
+  font-size: 14px;
+}
+
+.toolbox-toggle {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray-color);
+  border-radius: 4px;
+}
+
+.toolbox-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.toolbox-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.toolbox-category {
+  margin-bottom: 12px;
+}
+
+.toolbox-title {
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-color);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toolbox-title i {
+  font-size: 12px;
+}
+
+.toolbox-item {
+  padding: 8px;
+  margin: 4px 0;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.toolbox-item:hover {
+  background-color: var(--hover-color);
+  border-color: #bdc1c6;
+}
+
+.toolbox-item i {
+  font-size: 12px;
+  color: var(--gray-color);
+}
+
+/* منطقة العمل */
+.workspace {
+  flex: 1;
+  background-color: var(--workspace-bg);
+  overflow: auto;
+  position: relative;
+}
+
+.workspace-container {
+  min-height: 100%;
+  min-width: 100%;
+  position: relative;
+  background-color: var(--workspace-bg);
+  box-shadow: 0 0 0 1px var(--border-color);
+  margin: 20px;
+  padding: 20px;
+}
+
+.workspace-element {
+  position: absolute;
+  border: 1px dashed #aaa;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  resize: both;
+  overflow: auto;
+  min-width: 50px;
+  min-height: 50px;
+  cursor: move;
+  transition: all 0.2s ease;
+}
+
+.workspace-element.selected {
+  border: 2px solid var(--primary-color);
+  z-index: 100;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.workspace-element:hover {
+  border-color: #888;
+}
+
+.element-content {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* شريط أدوات العنصر */
+.element-toolbar {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background-color: var(--primary-color);
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  gap: 4px;
+  z-index: 101;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.2s ease;
+}
+
+.workspace-element.selected .element-toolbar {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.element-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 3px;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.element-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.element-divider {
+  width: 1px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* لوحة الخصائص */
+.properties-panel {
+  width: 280px;
+  background-color: var(--properties-bg);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  z-index: 10;
+}
+
+.properties-panel.collapsed {
+  width: 40px;
+}
+
+.properties-header {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 500;
+  color: var(--gray-color);
+}
+
+.properties-header i {
+  font-size: 14px;
+}
+
+.properties-toggle {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray-color);
+  border-radius: 4px;
+}
+
+.properties-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.properties-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.property-group {
+  margin-bottom: 16px;
+}
+
+.property-title {
+  padding: 6px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-color);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 8px;
+}
+
+.property-title i {
+  font-size: 12px;
+}
+
+.property-item {
+  margin-bottom: 10px;
+}
+
+.property-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--gray-color);
+}
+
+.property-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.property-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+.property-input-group {
+  display: flex;
+  gap: 4px;
+}
+
+.property-unit {
+  width: 60px;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: white;
+}
+
+.property-btn {
+  width: 32px;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.property-btn:hover {
+  background-color: var(--hover-color);
+}
+
+.property-margin-grid,
+.property-padding-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+  position: relative;
+}
+
+.property-margin-grid::before,
+.property-padding-grid::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  background-color: var(--border-color);
+  z-index: 1;
+}
+
+.property-margin-toggle,
+.property-padding-toggle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  font-size: 10px;
+}
+
+.property-margin-toggle:hover,
+.property-padding-toggle:hover {
+  background-color: var(--hover-color);
+}
+
+.property-margin-toggle.linked,
+.property-padding-toggle.linked {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.margin-top,
+.padding-top {
+  grid-column: 1 / span 2;
+}
+
+.margin-right,
+.padding-right {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.margin-bottom,
+.padding-bottom {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+}
+
+.margin-left,
+.padding-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+/* شريط الحالة */
+.status-bar {
+  display: flex;
+  background-color: var(--statusbar-bg);
+  color: var(--statusbar-text);
+  padding: 4px 12px;
+  font-size: 12px;
+  height: 24px;
+  align-items: center;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 16px;
+}
+
+.status-item i {
+  font-size: 10px;
+}
+
+/* النوافذ المنبثقة */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal.show {
+  display: flex;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  width: 600px;
+  max-width: 90%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--gray-color);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.modal-close:hover {
+  background-color: var(--hover-color);
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.modal-footer {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-primary {
+  padding: 8px 16px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary:hover {
+  background-color: #3367d6;
+}
+
+.btn-secondary {
+  padding: 8px 16px;
+  background-color: white;
+  color: var(--gray-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-secondary:hover {
+  background-color: var(--hover-color);
+}
+
+/* تبويبات الوسائط */
+.media-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 12px;
+}
+
+.media-tab {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--gray-color);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 2px solid transparent;
+}
+
+.media-tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.media-tab i {
+  font-size: 12px;
+}
+
+.media-tab-content {
+  display: none;
+}
+
+.media-tab-content.active {
+  display: block;
+}
+
+.media-upload-area {
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.media-upload-area:hover {
+  border-color: var(--primary-color);
+}
+
+.media-upload-area i {
+  font-size: 32px;
+  color: var(--gray-color);
+  margin-bottom: 8px;
+}
+
+.media-upload-area p {
+  margin-bottom: 12px;
+  color: var(--gray-color);
+}
+
+.media-library {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.media-library-item {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.media-library-item:hover {
+  border-color: var(--primary-color);
+}
+
+.media-library-item img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+}
+
+.media-library-title {
+  padding: 6px;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+/* تأثيرات عامة */
+.resize-animation-stopper * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* التكيف مع اتجاه RTL */
+[dir="rtl"] .menu-item .submenu {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .tool-group {
+  padding-right: 0;
+  padding-left: 8px;
+  border-right: none;
+  border-left: 1px solid var(--border-color);
+}
+
+[dir="rtl"] .view-tab {
+  border-right: none;
+  border-left: 1px solid var(--border-color);
+}
+
+[dir="rtl"] .toolbox {
+  border-right: none;
+  border-left: 1px solid var(--border-color);
+}
+
+[dir="rtl"] .properties-panel {
+  border-left: none;
+  border-right: 1px solid var(--border-color);
+}
+
+[dir="rtl"] .status-item {
+  margin-right: 0;
+  margin-left: 16px;
+}
+
+[dir="rtl"] .element-toolbar {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .property-margin-toggle,
+[dir="rtl"] .property-padding-toggle {
+  transform: translate(50%, -50%);
+}
+
+[dir="rtl"] .modal-footer {
+  justify-content: flex-start;
+}
+</style>
+<body>
+    <!-- شريط القوائم العلوي -->
+    <div class="menu-bar">
+        <div class="menu-item" data-submenu="file-menu">
+            <i class="fas fa-file"></i> ملف
+            <div class="submenu" id="file-menu">
+                <div class="submenu-item" data-action="new"><i class="fas fa-file"></i> جديد</div>
+                <div class="submenu-item" data-action="open"><i class="fas fa-folder-open"></i> فتح...</div>
+                <div class="submenu-item" data-action="save"><i class="fas fa-save"></i> حفظ</div>
+                <div class="submenu-divider"></div>
+                <div class="submenu-item" data-action="export"><i class="fas fa-file-export"></i> تصدير</div>
+                <div class="submenu-divider"></div>
+                <div class="submenu-item" data-action="exit"><i class="fas fa-sign-out-alt"></i> خروج</div>
+            </div>
+        </div>
+        <div class="menu-item" data-submenu="edit-menu">
+            <i class="fas fa-edit"></i> تحرير
+            <div class="submenu" id="edit-menu">
+                <div class="submenu-item" data-action="undo"><i class="fas fa-undo"></i> تراجع</div>
+                <div class="submenu-item" data-action="redo"><i class="fas fa-redo"></i> إعادة</div>
+                <div class="submenu-divider"></div>
+                <div class="submenu-item" data-action="cut"><i class="fas fa-cut"></i> قص</div>
+                <div class="submenu-item" data-action="copy"><i class="fas fa-copy"></i> نسخ</div>
+                <div class="submenu-item" data-action="paste"><i class="fas fa-paste"></i> لصق</div>
+                <div class="submenu-item" data-action="delete"><i class="fas fa-trash"></i> حذف</div>
+            </div>
+        </div>
+        <div class="menu-item" data-submenu="view-menu">
+            <i class="fas fa-eye"></i> عرض
+            <div class="submenu" id="view-menu">
+                <div class="submenu-item" data-action="zoom-in"><i class="fas fa-search-plus"></i> تكبير</div>
+                <div class="submenu-item" data-action="zoom-out"><i class="fas fa-search-minus"></i> تصغير</div>
+                <div class="submenu-item" data-action="reset-zoom"><i class="fas fa-search"></i> إعادة تعيين</div>
+                <div class="submenu-divider"></div>
+                <div class="submenu-item" data-action="fullscreen"><i class="fas fa-expand"></i> شاشة كاملة</div>
+            </div>
+        </div>
+        <div class="menu-item" data-submenu="insert-menu">
+            <i class="fas fa-plus-circle"></i> إدراج
+            <div class="submenu" id="insert-menu">
+                <div class="submenu-item" data-action="insert-image"><i class="fas fa-image"></i> صورة</div>
+                <div class="submenu-item" data-action="insert-video"><i class="fas fa-video"></i> فيديو</div>
+                <div class="submenu-item" data-action="insert-audio"><i class="fas fa-music"></i> صوت</div>
+                <div class="submenu-divider"></div>
+                <div class="submenu-item" data-action="insert-table"><i class="fas fa-table"></i> جدول</div>
+                <div class="submenu-item" data-action="insert-link"><i class="fas fa-link"></i> رابط</div>
+            </div>
+        </div>
+        <div class="menu-item" data-submenu="format-menu">
+            <i class="fas fa-paint-brush"></i> تنسيق
+            <div class="submenu" id="format-menu">
+                <div class="submenu-item" data-action="font-style"><i class="fas fa-font"></i> خط</div>
+                <div class="submenu-item" data-action="text-color"><i class="fas fa-palette"></i> لون النص</div>
+                <div class="submenu-item" data-action="bg-color"><i class="fas fa-fill-drip"></i> لون الخلفية</div>
+                <div class="submenu-divider"></div>
+                <div class="submenu-item" data-action="align-left"><i class="fas fa-align-left"></i> محاذاة لليسار</div>
+                <div class="submenu-item" data-action="align-center"><i class="fas fa-align-center"></i> توسيط</div>
+                <div class="submenu-item" data-action="align-right"><i class="fas fa-align-right"></i> محاذاة لليمين</div>
+            </div>
+        </div>
+        <div class="menu-item" data-submenu="tools-menu">
+            <i class="fas fa-tools"></i> أدوات
+            <div class="submenu" id="tools-menu">
+                <div class="submenu-item" data-action="developer-tools"><i class="fas fa-code"></i> أدوات المطور</div>
+                <div class="submenu-item" data-action="validate"><i class="fas fa-check-circle"></i> تحقق من صحة</div>
+                <div class="submenu-divider"></div>
+                <div class="submenu-item" data-action="settings"><i class="fas fa-cog"></i> إعدادات</div>
+            </div>
+        </div>
+        <div class="menu-item" data-submenu="help-menu">
+            <i class="fas fa-question-circle"></i> مساعدة
+            <div class="submenu" id="help-menu">
+                <div class="submenu-item" data-action="help"><i class="fas fa-info-circle"></i> مساعدة</div>
+                <div class="submenu-item" data-action="about"><i class="fas fa-address-card"></i> عن البرنامج</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- شريط الأدوات السريع -->
+    <div class="toolbar">
+        <div class="tool-group">
+            <button class="tool-btn" data-action="new" title="جديد (Ctrl+N)"><i class="fas fa-file"></i></button>
+            <button class="tool-btn" data-action="open" title="فتح (Ctrl+O)"><i class="fas fa-folder-open"></i></button>
+            <button class="tool-btn" data-action="save" title="حفظ (Ctrl+S)"><i class="fas fa-save"></i></button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" data-action="undo" title="تراجع (Ctrl+Z)"><i class="fas fa-undo"></i></button>
+            <button class="tool-btn" data-action="redo" title="إعادة (Ctrl+Y)"><i class="fas fa-redo"></i></button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" data-action="cut" title="قص (Ctrl+X)"><i class="fas fa-cut"></i></button>
+            <button class="tool-btn" data-action="copy" title="نسخ (Ctrl+C)"><i class="fas fa-copy"></i></button>
+            <button class="tool-btn" data-action="paste" title="لصق (Ctrl+V)"><i class="fas fa-paste"></i></button>
+            <button class="tool-btn" data-action="delete" title="حذف (Del)"><i class="fas fa-trash"></i></button>
+        </div>
+        <div class="tool-group">
+            <select class="tool-select" title="تنسيق النص">
+                <option value="p">فقرة</option>
+                <option value="h1">عنوان 1</option>
+                <option value="h2">عنوان 2</option>
+                <option value="h3">عنوان 3</option>
+                <option value="h4">عنوان 4</option>
+                <option value="h5">عنوان 5</option>
+                <option value="h6">عنوان 6</option>
+            </select>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" data-action="bold" title="عريض (Ctrl+B)"><i class="fas fa-bold"></i></button>
+            <button class="tool-btn" data-action="italic" title="مائل (Ctrl+I)"><i class="fas fa-italic"></i></button>
+            <button class="tool-btn" data-action="underline" title="تحته خط (Ctrl+U)"><i class="fas fa-underline"></i></button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" data-action="align-left" title="محاذاة لليسار"><i class="fas fa-align-left"></i></button>
+            <button class="tool-btn" data-action="align-center" title="توسيط"><i class="fas fa-align-center"></i></button>
+            <button class="tool-btn" data-action="align-right" title="محاذاة لليمين"><i class="fas fa-align-right"></i></button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" data-action="insert-image" title="إدراج صورة"><i class="fas fa-image"></i></button>
+            <button class="tool-btn" data-action="insert-link" title="إدراج رابط"><i class="fas fa-link"></i></button>
+            <button class="tool-btn" data-action="insert-table" title="إدراج جدول"><i class="fas fa-table"></i></button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-btn" data-action="preview" title="معاينة (F5)"><i class="fas fa-eye"></i></button>
+            <button class="tool-btn" data-action="publish" title="نشر"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    
+    <!-- تبويبات الواجهة -->
+    <div class="view-tabs">
+        <div class="view-tab active" data-view="design"><i class="fas fa-paint-brush"></i> التصميم</div>
+        <div class="view-tab" data-view="code"><i class="fas fa-code"></i> الكود</div>
+        <div class="view-tab" data-view="preview"><i class="fas fa-eye"></i> المعاينة</div>
+        <div class="view-tab" data-view="split"><i class="fas fa-columns"></i> تقسيم</div>
+    </div>
+    
+    <!-- المنطقة الرئيسية -->
+    <div class="main-area">
+        <!-- صندوق الأدوات -->
+        <div class="toolbox">
+            <div class="toolbox-header">
+                <i class="fas fa-toolbox"></i> صندوق الأدوات
+                <button class="toolbox-toggle"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="toolbox-content">
+                <div class="toolbox-category">
+                    <div class="toolbox-title"><i class="fas fa-cubes"></i> العناصر الأساسية</div>
+                    <div class="toolbox-item" draggable="true" data-type="heading"><i class="fas fa-heading"></i> عنوان</div>
+                    <div class="toolbox-item" draggable="true" data-type="paragraph"><i class="fas fa-paragraph"></i> فقرة</div>
+                    <div class="toolbox-item" draggable="true" data-type="link"><i class="fas fa-link"></i> رابط</div>
+                    <div class="toolbox-item" draggable="true" data-type="button"><i class="fas fa-square"></i> زر</div>
+                </div>
+                <div class="toolbox-category">
+                    <div class="toolbox-title"><i class="fas fa-th-large"></i> التخطيط</div>
+                    <div class="toolbox-item" draggable="true" data-type="div"><i class="fas fa-square-full"></i> قسم</div>
+                    <div class="toolbox-item" draggable="true" data-type="row"><i class="fas fa-grip-lines"></i> صف</div>
+                    <div class="toolbox-item" draggable="true" data-type="column"><i class="fas fa-columns"></i> عمود</div>
+                    <div class="toolbox-item" draggable="true" data-type="container"><i class="fas fa-border-all"></i> حاوية</div>
+                </div>
+                <div class="toolbox-category">
+                    <div class="toolbox-title"><i class="fas fa-edit"></i> النماذج</div>
+                    <div class="toolbox-item" draggable="true" data-type="form"><i class="fas fa-list-alt"></i> نموذج</div>
+                    <div class="toolbox-item" draggable="true" data-type="input"><i class="fas fa-font"></i> حقل نص</div>
+                    <div class="toolbox-item" draggable="true" data-type="checkbox"><i class="fas fa-check-square"></i> خانة اختيار</div>
+                    <div class="toolbox-item" draggable="true" data-type="select"><i class="fas fa-caret-square-down"></i> قائمة منسدلة</div>
+                </div>
+                <div class="toolbox-category">
+                    <div class="toolbox-title"><i class="fas fa-photo-video"></i> الوسائط</div>
+                    <div class="toolbox-item" draggable="true" data-type="image"><i class="fas fa-image"></i> صورة</div>
+                    <div class="toolbox-item" draggable="true" data-type="video"><i class="fas fa-video"></i> فيديو</div>
+                    <div class="toolbox-item" draggable="true" data-type="audio"><i class="fas fa-music"></i> صوت</div>
+                    <div class="toolbox-item" draggable="true" data-type="youtube"><i class="fab fa-youtube"></i> يوتيوب</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- منطقة العمل -->
+        <div class="workspace">
+            <div class="workspace-container" id="workspace-container">
+                <!-- العناصر ستضاف هنا ديناميكيًا -->
+            </div>
+            
+            <!-- شريط أدوات العنصر -->
+            <div class="element-toolbar" id="element-toolbar">
+                <button class="element-btn" data-action="move" title="تحريك"><i class="fas fa-arrows-alt"></i></button>
+                <button class="element-btn" data-action="edit" title="تحرير"><i class="fas fa-edit"></i></button>
+                <button class="element-btn" data-action="duplicate" title="تكرار"><i class="fas fa-copy"></i></button>
+                <button class="element-btn" data-action="delete" title="حذف"><i class="fas fa-trash"></i></button>
+                <div class="element-divider"></div>
+                <button class="element-btn" data-action="bring-forward" title="إلى الأمام"><i class="fas fa-layer-plus"></i></button>
+                <button class="element-btn" data-action="send-backward" title="إلى الخلف"><i class="fas fa-layer-minus"></i></button>
+                <div class="element-divider"></div>
+                <button class="element-btn" data-action="properties" title="خصائص"><i class="fas fa-sliders-h"></i></button>
+            </div>
+        </div>
+        
+        <!-- لوحة الخصائص -->
+        <div class="properties-panel">
+            <div class="properties-header">
+                <i class="fas fa-sliders-h"></i> خصائص العنصر
+                <button class="properties-toggle"><i class="fas fa-chevron-left"></i></button>
+            </div>
+            <div class="properties-content">
+                <div class="property-group">
+                    <div class="property-title"><i class="fas fa-tag"></i> عام</div>
+                    <div class="property-item">
+                        <label class="property-label">النوع</label>
+                        <input type="text" class="property-input" id="element-type" disabled>
+                    </div>
+                    <div class="property-item">
+                        <label class="property-label">المعرف (ID)</label>
+                        <input type="text" class="property-input" id="element-id" placeholder="أدخل معرفًا فريدًا">
+                    </div>
+                    <div class="property-item">
+                        <label class="property-label">الفئة (Class)</label>
+                        <input type="text" class="property-input" id="element-class" placeholder="أدخل فئة أو أكثر">
+                    </div>
+                </div>
+                
+                <div class="property-group">
+                    <div class="property-title"><i class="fas fa-ruler-combined"></i> التخطيط</div>
+                    <div class="property-item">
+                        <label class="property-label">العرض</label>
+                        <div class="property-input-group">
+                            <input type="text" class="property-input" id="element-width" value="auto">
+                            <select class="property-unit" id="element-width-unit">
+                                <option value="px">px</option>
+                                <option value="%">%</option>
+                                <option value="em">em</option>
+                                <option value="rem">rem</option>
+                                <option value="auto">auto</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="property-item">
+                        <label class="property-label">الارتفاع</label>
+                        <div class="property-input-group">
+                            <input type="text" class="property-input" id="element-height" value="auto">
+                            <select class="property-unit" id="element-height-unit">
+                                <option value="px">px</option>
+                                <option value="%">%</option>
+                                <option value="em">em</option>
+                                <option value="rem">rem</option>
+                                <option value="auto">auto</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="property-item">
+                        <label class="property-label">الهامش</label>
+                        <div class="property-margin-grid">
+                            <input type="text" class="property-input margin-top" placeholder="أعلى">
+                            <input type="text" class="property-input margin-right" placeholder="يمين">
+                            <input type="text" class="property-input margin-bottom" placeholder="أسفل">
+                            <input type="text" class="property-input margin-left" placeholder="يسار">
+                            <button class="property-margin-toggle"><i class="fas fa-link"></i></button>
+                        </div>
+                    </div>
+                    <div class="property-item">
+                        <label class="property-label">الحشو</label>
+                        <div class="property-padding-grid">
+                            <input type="text" class="property-input padding-top" placeholder="أعلى">
+                            <input type="text" class="property-input padding-right" placeholder="يمين">
+                            <input type="text" class="property-input padding-bottom" placeholder="أسفل">
+                            <input type="text" class="property-input padding-left" placeholder="يسار">
+                            <button class="property-padding-toggle"><i class="fas fa-link"></i></button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="property-group" id="media-properties-group">
+                    <div class="property-title"><i class="fas fa-photo-video"></i> خصائص الوسائط</div>
+                    <div class="property-item">
+                        <label class="property-label">المصدر</label>
+                        <div class="property-input-group">
+                            <input type="text" class="property-input" id="element-src" placeholder="أدخل رابط المصدر">
+                            <button class="property-btn" id="element-src-btn"><i class="fas fa-folder-open"></i></button>
+                        </div>
+                    </div>
+                    <div class="property-item">
+                        <label class="property-label">النص البديل</label>
+                        <input type="text" class="property-input" id="element-alt" placeholder="أدخل النص البديل">
+                    </div>
+                </div>
+                
+                <div class="property-group">
+                    <div class="property-title"><i class="fas fa-paint-brush"></i> النمط</div>
+                    <div class="property-item">
+                        <label class="property-label">لون الخلفية</label>
+                        <div class="property-input-group">
+                            <input type="color" class="property-input" id="element-bgcolor">
+                            <input type="text" class="property-input" id="element-bgcolor-value" placeholder="#ffffff">
+                        </div>
+                    </div>
+                    <div class="property-item">
+                        <label class="property-label">لون النص</label>
+                        <div class="property-input-group">
+                            <input type="color" class="property-input" id="element-color" value="#000000">
+                            <input type="text" class="property-input" id="element-color-value" placeholder="#000000">
+                        </div>
+                    </div>
+                    <div class="property-item">
+                        <label class="property-label">حجم الخط</label>
+                        <div class="property-input-group">
+                            <input type="text" class="property-input" id="element-fontsize" value="16">
+                            <select class="property-unit" id="element-fontsize-unit">
+                                <option value="px">px</option>
+                                <option value="em">em</option>
+                                <option value="rem">rem</option>
+                                <option value="%">%</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- شريط الحالة -->
+    <div class="status-bar">
+        <div class="status-item"><i class="fas fa-mouse-pointer"></i> <span id="cursor-position">X: 0, Y: 0</span></div>
+        <div class="status-item"><i class="fas fa-expand-arrows-alt"></i> <span id="element-size">العرض: 0, الارتفاع: 0</span></div>
+        <div class="status-item"><i class="fas fa-code"></i> <span id="document-mode">HTML5</span></div>
+        <div class="status-item"><i class="fas fa-globe"></i> <span id="language">العربية</span></div>
+        <div class="status-item"><i class="fas fa-bolt"></i> <span id="ready-status">جاهز</span></div>
+    </div>
+
+    <!-- نافذة الوسائط -->
+    <div class="modal" id="media-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-photo-video"></i> إدراج وسائط</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="media-tabs">
+                    <div class="media-tab active" data-tab="upload"><i class="fas fa-upload"></i> رفع</div>
+                    <div class="media-tab" data-tab="url"><i class="fas fa-link"></i> رابط</div>
+                    <div class="media-tab" data-tab="media-library"><i class="fas fa-photo-video"></i> المكتبة</div>
+                </div>
+                <div class="media-tab-content active" data-tab="upload">
+    <div class="media-upload-area" id="media-upload-area">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>اسحب وأفلت الملفات هنا أو</p>
+        <button class="btn-primary" id="browse-files-btn"><i class="fas fa-folder-open"></i> تصفح الملفات</button>
+        <input type="file" id="media-upload-input" style="display: none;">
+    </div>
+    <div class="media-preview" style="margin: 15px 0; text-align: center;"></div>
+</div>
+                <div class="media-tab-content" data-tab="url">
+                    <div class="form-group">
+                        <label>رابط الوسائط</label>
+                        <input type="text" class="form-control" id="media-url" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>النص البديل</label>
+                        <input type="text" class="form-control" id="media-alt" placeholder="وصف الصورة">
+                    </div>
+                </div>
+                <div class="media-tab-content" data-tab="media-library">
+                    <div class="media-library">
+                        <div class="media-library-item">
+                            <img src="https://via.placeholder.com/150" alt="صورة مثال">
+                            <div class="media-library-title">صورة مثال</div>
+                        </div>
+                        <div class="media-library-item">
+                            <img src="https://via.placeholder.com/150" alt="صورة مثال">
+                            <div class="media-library-title">صورة مثال</div>
+                        </div>
+                        <div class="media-library-item">
+                            <img src="https://via.placeholder.com/150" alt="صورة مثال">
+                            <div class="media-library-title">صورة مثال</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary modal-cancel">إلغاء</button>
+                <button class="btn-primary modal-insert">إدراج</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة التعليمات -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-question-circle"></i> التعليمات</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>كيفية استخدام المحرر:</h4>
+                <ol>
+                    <li>اسحب العناصر من صندوق الأدوات إلى منطقة العمل</li>
+                    <li>انقر على العنصر لتحديده وعرض خصائصه</li>
+                    <li>استخدم لوحة الخصائص لتعديل العنصر</li>
+                    <li>استخدم شريط الأدوات العلوي للتحكم في المستند</li>
+                    <li>اضغط على زر المعاينة لرؤية النتيجة النهائية</li>
+                </ol>
+                <h4>اختصارات لوحة المفاتيح:</h4>
+                <ul>
+                    <li><strong>Ctrl+N</strong>: ملف جديد</li>
+                    <li><strong>Ctrl+O</strong>: فتح ملف</li>
+                    <li><strong>Ctrl+S</strong>: حفظ</li>
+                    <li><strong>Ctrl+Z</strong>: تراجع</li>
+                    <li><strong>Ctrl+Y</strong>: إعادة</li>
+                    <li><strong>F5</strong>: معاينة</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary modal-close-btn">حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Global variables
+    let selectedElement = null;
+    let isDragging = false;
+    let startX, startY;
+    let initialElementX, initialElementY;
+    let currentScale = 1;
+    let currentView = 'design';
+    let toolboxVisible = true;
+    let propertiesPanelVisible = true;
+
+    // DOM Elements
+    const workspaceContainer = document.getElementById('workspace-container');
+    const elementToolbar = document.getElementById('element-toolbar');
+    const cursorPosition = document.getElementById('cursor-position');
+    const elementSize = document.getElementById('element-size');
+    const mediaModal = document.getElementById('media-modal');
+    const helpModal = document.getElementById('help-modal');
+
+    // Initialize the editor
+    initEditor();
+
+    function initEditor() {
+        // Setup menu interactions
+        setupMenus();
+        
+        // Setup toolbar buttons
+        setupToolbar();
+        
+        // Setup view tabs
+        setupViewTabs();
+        
+        // Setup toolbox items (drag and drop)
+        setupToolbox();
+        
+        // Setup workspace interactions
+        setupWorkspace();
+        
+        // Setup properties panel
+        setupPropertiesPanel();
+        
+        // Setup modals
+        setupModals();
+        
+        // Setup status bar
+        setupStatusBar();
+        // تهيئة حدث رفع الملف
+document.getElementById('media-upload-input').addEventListener('change', handleFileUpload);
+document.getElementById('browse-files-btn').addEventListener('click', function() {
+    document.getElementById('media-upload-input').click();
+});
+
+// دعم سحب وإفلات الملفات
+const uploadArea = document.getElementById('media-upload-area');
+uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '#4285f4';
+    this.style.backgroundColor = '#f0f7ff';
+});
+
+uploadArea.addEventListener('dragleave', function() {
+    this.style.borderColor = '#dadce0';
+    this.style.backgroundColor = '';
+});
+
+uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '#dadce0';
+    this.style.backgroundColor = '';
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        const input = document.getElementById('media-upload-input');
+        input.files = files;
+        const event = new Event('change');
+        input.dispatchEvent(event);
+    }
+});
+    }
+
+// دالة معالجة رفع الملفات
+function handleFileUpload(e) {
+    const type = mediaModal.getAttribute('data-media-type');
+    const files = e.target.files;
+    
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    
+    // التحقق من نوع الملف
+    const validTypes = {
+        image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
+        video: ['video/mp4', 'video/webm', 'video/ogg'],
+        audio: ['audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/mp3']
+    };
+    
+    if (!validTypes[type].includes(file.type)) {
+        alert(`نوع الملف غير مدعوم. الرجاء اختيار ملف من النوع: ${validTypes[type].join(', ')}`);
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const previewContainer = document.querySelector('.media-preview');
+        previewContainer.innerHTML = '';
+        
+        if (type === 'image') {
+            const img = document.createElement('img');
+            img.src = event.target.result;
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = '200px';
+            previewContainer.appendChild(img);
+        } 
+        else if (type === 'video') {
+            const video = document.createElement('video');
+            video.src = event.target.result;
+            video.controls = true;
+            video.style.maxWidth = '100%';
+            video.style.maxHeight = '200px';
+            previewContainer.appendChild(video);
+        }
+        else if (type === 'audio') {
+            const audio = document.createElement('audio');
+            audio.src = event.target.result;
+            audio.controls = true;
+            audio.style.width = '100%';
+            previewContainer.appendChild(audio);
+        }
+        
+        // حفظ رابط الملف للإدراج لاحقاً
+        document.getElementById('media-url').value = event.target.result;
+    };
+    
+    reader.onerror = function() {
+        alert('حدث خطأ أثناء قراءة الملف');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+// دالة مساعدة لتحديد نوع الفيديو
+function getVideoType(url) {
+    if (url.includes('.mp4')) return 'video/mp4';
+    if (url.includes('.webm')) return 'video/webm';
+    if (url.includes('.ogg')) return 'video/ogg';
+    return 'video/mp4';
+}
+
+// دالة مساعدة لتحديد نوع الصوت
+function getAudioType(url) {
+    if (url.includes('.mp3')) return 'audio/mpeg';
+    if (url.includes('.wav')) return 'audio/wav';
+    if (url.includes('.ogg')) return 'audio/ogg';
+    return 'audio/mpeg';
+}
+
+
+
+
+
+
+
+    // Menu functionality
+    function setupMenus() {
+        const menuItems = document.querySelectorAll('.menu-item');
+        
+        menuItems.forEach(item => {
+            const submenuId = item.getAttribute('data-submenu');
+            const submenu = document.getElementById(submenuId);
+            
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeAllSubmenus();
+                submenu.style.display = 'block';
+            });
+        });
+        
+        document.addEventListener('click', closeAllSubmenus);
+        
+        // Submenu actions
+        document.querySelectorAll('.submenu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                executeMenuAction(action);
+            });
+        });
+    }
+
+    function closeAllSubmenus() {
+        document.querySelectorAll('.submenu').forEach(submenu => {
+            submenu.style.display = 'none';
+        });
+    }
+
+    function executeMenuAction(action) {
+        switch(action) {
+            case 'new':
+                newDocument();
+                break;
+            case 'open':
+                openFile();
+                break;
+            case 'save':
+                saveFile();
+                break;
+            case 'export':
+                exportFile();
+                break;
+            case 'exit':
+                // Exit functionality
+                break;
+            case 'undo':
+                // Undo functionality
+                break;
+            case 'redo':
+                // Redo functionality
+                break;
+            case 'cut':
+                // Cut functionality
+                break;
+            case 'copy':
+                // Copy functionality
+                break;
+            case 'paste':
+                // Paste functionality
+                break;
+            case 'delete':
+                deleteSelectedElement();
+                break;
+            case 'zoom-in':
+                zoomIn();
+                break;
+            case 'zoom-out':
+                zoomOut();
+                break;
+            case 'reset-zoom':
+                resetZoom();
+                break;
+            case 'fullscreen':
+                toggleFullscreen();
+                break;
+            case 'insert-image':
+                openMediaModal('image');
+                break;
+            case 'insert-video':
+                openMediaModal('video');
+                break;
+            case 'insert-audio':
+                openMediaModal('audio');
+                break;
+            case 'insert-table':
+                insertTable();
+                break;
+            case 'insert-link':
+                insertLink();
+                break;
+            case 'help':
+                openHelpModal();
+                break;
+            case 'about':
+                // About functionality
+                break;
+            // Add more cases as needed
+        }
+    }
+
+    // Toolbar functionality
+    function setupToolbar() {
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                executeToolbarAction(action);
+            });
+        });
+        
+        // Text format select
+        document.querySelector('.tool-select').addEventListener('change', function() {
+            const format = this.value;
+            if (selectedElement) {
+                // Change element type or apply formatting
+            }
+        });
+    }
+
+    function executeToolbarAction(action) {
+        switch(action) {
+            case 'new':
+                newDocument();
+                break;
+            case 'open':
+                openFile();
+                break;
+            case 'save':
+                saveFile();
+                break;
+            case 'undo':
+                // Undo functionality
+                break;
+            case 'redo':
+                // Redo functionality
+                break;
+            case 'cut':
+                // Cut functionality
+                break;
+            case 'copy':
+                // Copy functionality
+                break;
+            case 'paste':
+                // Paste functionality
+                break;
+            case 'delete':
+                deleteSelectedElement();
+                break;
+            case 'bold':
+                applyTextFormat('bold');
+                break;
+            case 'italic':
+                applyTextFormat('italic');
+                break;
+            case 'underline':
+                applyTextFormat('underline');
+                break;
+            case 'align-left':
+                applyAlignment('left');
+                break;
+            case 'align-center':
+                applyAlignment('center');
+                break;
+            case 'align-right':
+                applyAlignment('right');
+                break;
+            case 'insert-image':
+                openMediaModal('image');
+                break;
+            case 'insert-link':
+                insertLink();
+                break;
+            case 'insert-table':
+                insertTable();
+                break;
+            case 'preview':
+                switchView('preview');
+                break;
+            case 'publish':
+                // Publish functionality
+                break;
+        }
+    }
+
+    // View tabs functionality
+    function setupViewTabs() {
+        document.querySelectorAll('.view-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const view = this.getAttribute('data-view');
+                switchView(view);
+            });
+        });
+    }
+
+    function switchView(view) {
+        currentView = view;
+        
+        // Update active tab
+        document.querySelectorAll('.view-tab').forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.getAttribute('data-view') === view) {
+                tab.classList.add('active');
+            }
+        });
+        
+        // Update workspace based on view
+        // This would involve showing/hiding different views
+    }
+
+    // Toolbox functionality
+    function setupToolbox() {
+        document.querySelectorAll('.toolbox-item').forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', this.getAttribute('data-type'));
+            });
+        });
+        
+        // Toggle toolbox visibility
+        document.querySelector('.toolbox-toggle').addEventListener('click', function() {
+            const toolbox = document.querySelector('.toolbox');
+            toolboxVisible = !toolboxVisible;
+            
+            if (toolboxVisible) {
+                toolbox.style.width = '250px';
+                this.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            } else {
+                toolbox.style.width = '0';
+                this.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            }
+        });
+        
+        // Setup workspace as drop target
+        workspaceContainer.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+        
+        workspaceContainer.addEventListener('drop', function(e) {
+            e.preventDefault();
+            const elementType = e.dataTransfer.getData('text/plain');
+            createNewElement(elementType, e.clientX, e.clientY);
+        });
+    }
+
+    function createNewElement(type, x, y) {
+        const element = document.createElement('div');
+        element.className = 'workspace-element';
+        element.setAttribute('data-type', type);
+        
+        // Position the element where it was dropped
+        const rect = workspaceContainer.getBoundingClientRect();
+        const posX = x - rect.left;
+        const posY = y - rect.top;
+        
+        element.style.position = 'absolute';
+        element.style.left = posX + 'px';
+        element.style.top = posY + 'px';
+        
+        // Create different elements based on type
+        switch(type) {
+            case 'heading':
+                element.innerHTML = '<h1>عنوان</h1>';
+                element.setAttribute('contenteditable', 'true');
+                break;
+            case 'paragraph':
+                element.innerHTML = '<p>فقرة نصية</p>';
+                element.setAttribute('contenteditable', 'true');
+                break;
+            case 'image':
+                element.innerHTML = '<img src="https://via.placeholder.com/150" alt="صورة">';
+                break;
+            case 'button':
+                element.innerHTML = '<button>زر</button>';
+                break;
+            case 'div':
+                element.style.width = '100px';
+                element.style.height = '100px';
+                element.style.backgroundColor = '#f0f0f0';
+                break;
+            // Add more element types as needed
+            default:
+                element.innerHTML = type;
+        }
+        
+        workspaceContainer.appendChild(element);
+        
+        // Select the new element
+        selectElement(element);
+    }
+
+    // Workspace functionality
+    function setupWorkspace() {
+        // Click to select elements
+        workspaceContainer.addEventListener('click', function(e) {
+            const element = e.target.closest('.workspace-element');
+            if (element) {
+                selectElement(element);
+                e.stopPropagation();
+            } else {
+                // Clicked on empty space - deselect
+                deselectElement();
+            }
+        });
+        
+        // Double-click to edit text
+        workspaceContainer.addEventListener('dblclick', function(e) {
+            const element = e.target.closest('[contenteditable]');
+            if (element) {
+                element.focus();
+            }
+        });
+        
+        // Setup element dragging
+        workspaceContainer.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', dragElement);
+        document.addEventListener('mouseup', endDrag);
+        
+        // Setup touch events for mobile
+        workspaceContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+        workspaceContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+        workspaceContainer.addEventListener('touchend', handleTouchEnd);
+        
+        // Setup pinch zoom
+        let initialDistance = 0;
+        workspaceContainer.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 2 && selectedElement) {
+                e.preventDefault();
+                initialDistance = getDistance(e.touches[0], e.touches[1]);
+            }
+        });
+        
+        workspaceContainer.addEventListener('touchmove', function(e) {
+            if (e.touches.length === 2 && selectedElement) {
+                e.preventDefault();
+                const currentDistance = getDistance(e.touches[0], e.touches[1]);
+                const scale = currentDistance / initialDistance;
+                
+                selectedElement.style.transform = `scale(${scale})`;
+                currentScale = scale;
+            }
+        });
+    }
+
+    function getDistance(touch1, touch2) {
+        const dx = touch1.clientX - touch2.clientX;
+        const dy = touch1.clientY - touch2.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function startDrag(e) {
+        const element = e.target.closest('.workspace-element');
+        if (element && element === selectedElement) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            const rect = element.getBoundingClientRect();
+            initialElementX = rect.left;
+            initialElementY = rect.top;
+            
+            // Bring element to front
+            element.style.zIndex = '1000';
+        }
+    }
+
+    function dragElement(e) {
+        if (isDragging && selectedElement) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            selectedElement.style.left = (initialElementX + dx) + 'px';
+            selectedElement.style.top = (initialElementY + dy) + 'px';
+        }
+    }
+
+    function endDrag() {
+        isDragging = false;
+        if (selectedElement) {
+            selectedElement.style.zIndex = '';
+        }
+    }
+
+    // Touch event handlers
+    function handleTouchStart(e) {
+        if (e.touches.length === 1) {
+            const touch = e.touches[0];
+            const element = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (element && element.closest('.workspace-element')) {
+                const workspaceElement = element.closest('.workspace-element');
+                selectElement(workspaceElement);
+                
+                // Setup for potential drag
+                isDragging = true;
+                startX = touch.clientX;
+                startY = touch.clientY;
+                
+                const rect = workspaceElement.getBoundingClientRect();
+                initialElementX = rect.left;
+                initialElementY = rect.top;
+                
+                e.preventDefault();
+            }
+        }
+    }
+
+    function handleTouchMove(e) {
+        if (isDragging && selectedElement && e.touches.length === 1) {
+            const touch = e.touches[0];
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+            
+            selectedElement.style.left = (initialElementX + dx) + 'px';
+            selectedElement.style.top = (initialElementY + dy) + 'px';
+            
+            e.preventDefault();
+        }
+    }
+
+    function handleTouchEnd() {
+        isDragging = false;
+    }
+
+    // Element selection and manipulation
+    function selectElement(element) {
+        // Deselect current element if any
+        if (selectedElement) {
+            selectedElement.classList.remove('selected');
+        }
+        
+        // Select new element
+        selectedElement = element;
+        element.classList.add('selected');
+        
+        // Show element toolbar near the element
+        positionElementToolbar(element);
+        elementToolbar.style.display = 'flex';
+        
+        // Update properties panel
+        updatePropertiesPanel(element);
+    }
+
+    function deselectElement() {
+        if (selectedElement) {
+            selectedElement.classList.remove('selected');
+            selectedElement = null;
+        }
+        
+        // Hide element toolbar
+        elementToolbar.style.display = 'none';
+        
+        // Clear properties panel
+        clearPropertiesPanel();
+    }
+
+    function positionElementToolbar(element) {
+        const rect = element.getBoundingClientRect();
+        const workspaceRect = workspaceContainer.getBoundingClientRect();
+        
+        // Position toolbar above the element
+        const top = rect.top - workspaceRect.top - 40;
+        const left = rect.left - workspaceRect.left + rect.width / 2 - 100;
+        
+        elementToolbar.style.top = top + 'px';
+        elementToolbar.style.left = left + 'px';
+    }
+
+    function deleteSelectedElement() {
+        if (selectedElement) {
+            selectedElement.remove();
+            deselectElement();
+        }
+    }
+
+    // Element toolbar functionality
+    function setupElementToolbar() {
+        document.querySelectorAll('.element-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                executeElementAction(action);
+            });
+        });
+    }
+
+    function executeElementAction(action) {
+        if (!selectedElement) return;
+        
+        switch(action) {
+            case 'move':
+                // Already handled by drag functionality
+                break;
+            case 'edit':
+                if (selectedElement.hasAttribute('contenteditable')) {
+                    selectedElement.focus();
+                }
+                break;
+            case 'duplicate':
+                duplicateElement();
+                break;
+            case 'delete':
+                deleteSelectedElement();
+                break;
+            case 'bring-forward':
+                bringForward();
+                break;
+            case 'send-backward':
+                sendBackward();
+                break;
+            case 'properties':
+                // Already shown in properties panel
+                break;
+        }
+    }
+
+    function duplicateElement() {
+        if (selectedElement) {
+            const clone = selectedElement.cloneNode(true);
+            const rect = selectedElement.getBoundingClientRect();
+            
+            // Offset the clone slightly
+            clone.style.left = (rect.left + 20) + 'px';
+            clone.style.top = (rect.top + 20) + 'px';
+            
+            workspaceContainer.appendChild(clone);
+            selectElement(clone);
+        }
+    }
+
+    function bringForward() {
+        if (selectedElement) {
+            const elements = Array.from(workspaceContainer.children);
+            const currentIndex = elements.indexOf(selectedElement);
+            
+            if (currentIndex < elements.length - 1) {
+                workspaceContainer.insertBefore(selectedElement, elements[currentIndex + 2]);
+            }
+        }
+    }
+
+    function sendBackward() {
+        if (selectedElement) {
+            const elements = Array.from(workspaceContainer.children);
+            const currentIndex = elements.indexOf(selectedElement);
+            
+            if (currentIndex > 0) {
+                workspaceContainer.insertBefore(selectedElement, elements[currentIndex - 1]);
+            }
+        }
+    }
+
+    // Properties panel functionality
+    function setupPropertiesPanel() {
+        // Toggle properties panel visibility
+        document.querySelector('.properties-toggle').addEventListener('click', function() {
+            const panel = document.querySelector('.properties-panel');
+            propertiesPanelVisible = !propertiesPanelVisible;
+            
+            if (propertiesPanelVisible) {
+                panel.style.width = '300px';
+                this.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            } else {
+                panel.style.width = '0';
+                this.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            }
+        });
+        
+        // Setup property input listeners
+        setupPropertyInputs();
+    }
+
+    function setupPropertyInputs() {
+        // General properties
+        document.getElementById('element-id').addEventListener('change', function() {
+            if (selectedElement) {
+                selectedElement.id = this.value;
+            }
+        });
+        
+        document.getElementById('element-class').addEventListener('change', function() {
+            if (selectedElement) {
+                selectedElement.className = this.value;
+            }
+        });
+        
+        // Layout properties
+        document.getElementById('element-width').addEventListener('change', function() {
+            if (selectedElement) {
+                const unit = document.getElementById('element-width-unit').value;
+                selectedElement.style.width = this.value + unit;
+            }
+        });
+        
+        document.getElementById('element-height').addEventListener('change', function() {
+            if (selectedElement) {
+                const unit = document.getElementById('element-height-unit').value;
+                selectedElement.style.height = this.value + unit;
+            }
+        });
+        
+        // Style properties
+        document.getElementById('element-bgcolor').addEventListener('input', function() {
+            if (selectedElement) {
+                selectedElement.style.backgroundColor = this.value;
+                document.getElementById('element-bgcolor-value').value = this.value;
+            }
+        });
+        
+        document.getElementById('element-color').addEventListener('input', function() {
+            if (selectedElement) {
+                selectedElement.style.color = this.value;
+                document.getElementById('element-color-value').value = this.value;
+            }
+        });
+        
+        // Add more property listeners as needed
+    }
+
+    function updatePropertiesPanel(element) {
+        // Set element type
+        document.getElementById('element-type').value = element.getAttribute('data-type') || 'div';
+        
+        // Set element ID
+        document.getElementById('element-id').value = element.id || '';
+        
+        // Set element class
+        document.getElementById('element-class').value = element.className || '';
+        
+        // Set dimensions
+        const style = window.getComputedStyle(element);
+        const widthMatch = style.width.match(/(\d+)(\w+)/);
+        const heightMatch = style.height.match(/(\d+)(\w+)/);
+        
+        if (widthMatch) {
+            document.getElementById('element-width').value = widthMatch[1];
+            document.getElementById('element-width-unit').value = widthMatch[2];
+        }
+        
+        if (heightMatch) {
+            document.getElementById('element-height').value = heightMatch[1];
+            document.getElementById('element-height-unit').value = heightMatch[2];
+        }
+        
+        // Set colors
+        document.getElementById('element-bgcolor').value = rgbToHex(style.backgroundColor);
+        document.getElementById('element-bgcolor-value').value = rgbToHex(style.backgroundColor);
+        
+        document.getElementById('element-color').value = rgbToHex(style.color);
+        document.getElementById('element-color-value').value = rgbToHex(style.color);
+        
+        // Show/hide media properties based on element type
+        const mediaGroup = document.getElementById('media-properties-group');
+        if (element.getAttribute('data-type') === 'image') {
+            mediaGroup.style.display = 'block';
+            document.getElementById('element-src').value = element.querySelector('img')?.src || '';
+            document.getElementById('element-alt').value = element.querySelector('img')?.alt || '';
+        } else {
+            mediaGroup.style.display = 'none';
+        }
+    }
+
+    function clearPropertiesPanel() {
+        // Clear all property fields
+        document.getElementById('element-type').value = '';
+        document.getElementById('element-id').value = '';
+        document.getElementById('element-class').value = '';
+        document.getElementById('element-width').value = '';
+        document.getElementById('element-height').value = '';
+        document.getElementById('element-bgcolor').value = '#ffffff';
+        document.getElementById('element-bgcolor-value').value = '';
+        document.getElementById('element-color').value = '#000000';
+        document.getElementById('element-color-value').value = '';
+        document.getElementById('element-src').value = '';
+        document.getElementById('element-alt').value = '';
+    }
+
+    function rgbToHex(rgb) {
+        if (!rgb || rgb === 'transparent' || rgb === 'rgba(0, 0, 0, 0)') return '#ffffff';
+        
+        const match = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/);
+        if (!match) return '#ffffff';
+        
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        
+        return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    // Modals functionality
+    function setupModals() {
+    // Media modal
+    document.querySelectorAll('[data-action^="insert-"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const action = this.getAttribute('data-action');
+            const type = action.replace('insert-', '');
+            openMediaModal(type);
+        });
+    });
+    
+    document.querySelector('.modal-close').addEventListener('click', closeMediaModal);
+    document.querySelector('.modal-cancel').addEventListener('click', closeMediaModal);
+    document.querySelector('.modal-insert').addEventListener('click', insertMedia);
+    
+    // Media tab switching
+    document.querySelectorAll('.media-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            switchMediaTab(tabName);
+        });
+    });
+    
+    // Help modal
+    document.querySelector('[data-action="help"]').addEventListener('click', openHelpModal);
+    document.querySelectorAll('.modal-close-btn, .help-modal .modal-close').forEach(btn => {
+        btn.addEventListener('click', closeHelpModal);
+    });
+}
+
+//    function openMediaModal(type) {
+  //      mediaModal.style.display = 'block';
+  //      mediaModal.setAttribute('data-media-type', type);
+        
+        // Set appropriate tab based on type
+  //      switch(type) {
+   //         case 'image':
+    //            switchMediaTab('upload');
+   //             break;
+     //       case 'video':
+    //            switchMediaTab('url');
+     //           break;
+    //        case 'audio':
+     //           switchMediaTab('upload');
+     //           break;
+  //      }
+ //   }
+ function openMediaModal(type) {
+    mediaModal.style.display = 'block';
+    mediaModal.setAttribute('data-media-type', type);
+    
+    // إعداد نوع الملف المقبول حسب نوع الوسائط
+    const fileInput = document.getElementById('media-upload-input');
+    fileInput.accept = type === 'image' ? 'image/*' : 
+                       type === 'video' ? 'video/*' : 
+                       type === 'audio' ? 'audio/*' : '*/*';
+    
+    switchMediaTab('upload');
+}
+
+    function closeMediaModal() {
+        mediaModal.style.display = 'none';
+    }
+
+    function switchMediaTab(tabName) {
+        // Update active tab
+        document.querySelectorAll('.media-tab').forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.getAttribute('data-tab') === tabName) {
+                tab.classList.add('active');
+            }
+        });
+        
+        // Show corresponding content
+        document.querySelectorAll('.media-tab-content').forEach(content => {
+            content.classList.remove('active');
+            if (content.getAttribute('data-tab') === tabName) {
+                content.classList.add('active');
+            }
+        });
+    }
+
+    // تعديل دالة إدراج الوسائط
+function insertMedia() {
+    const type = mediaModal.getAttribute('data-media-type');
+    const activeTab = document.querySelector('.media-tab.active').getAttribute('data-tab');
+    const url = document.getElementById('media-url').value;
+    const alt = document.getElementById('media-alt').value;
+    
+    if (!url) {
+        alert('الرجاء اختيار ملف أو إدخال رابط URL');
+        return;
+    }
+    
+    const element = document.createElement('div');
+    element.className = 'workspace-element';
+    element.setAttribute('data-type', type);
+    
+    if (type === 'image') {
+        element.innerHTML = `<img src="${url}" alt="${alt || ''}" style="max-width:100%;">`;
+    } 
+    else if (type === 'video') {
+        element.innerHTML = `
+            <video controls style="max-width:100%;">
+                <source src="${url}" type="${getVideoType(url)}">
+                المتصفح لا يدعم تشغيل الفيديو
+            </video>
+        `;
+    }
+    else if (type === 'audio') {
+        element.innerHTML = `
+            <audio controls>
+                <source src="${url}" type="${getAudioType(url)}">
+                المتصفح لا يدعم تشغيل الصوت
+            </audio>
+        `;
+    }
+    
+    workspaceContainer.appendChild(element);
+    selectElement(element);
+    closeMediaModal();
+}
+
+    function openHelpModal() {
+        helpModal.style.display = 'block';
+    }
+
+    function closeHelpModal() {
+        helpModal.style.display = 'none';
+    }
+
+    // Status bar functionality
+    function setupStatusBar() {
+        // Track cursor position
+        workspaceContainer.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            cursorPosition.textContent = `X: ${Math.round(x)}, Y: ${Math.round(y)}`;
+        });
+        
+        // Update element size when selected
+        // This would be called when an element is selected
+    }
+
+    // Text formatting functions
+    function applyTextFormat(format) {
+        if (!selectedElement) return;
+        
+        if (selectedElement.hasAttribute('contenteditable')) {
+            document.execCommand(format, false, null);
+        } else {
+            // For non-editable elements, apply CSS
+            switch(format) {
+                case 'bold':
+                    selectedElement.style.fontWeight = selectedElement.style.fontWeight === 'bold' ? 'normal' : 'bold';
+                    break;
+                case 'italic':
+                    selectedElement.style.fontStyle = selectedElement.style.fontStyle === 'italic' ? 'normal' : 'italic';
+                    break;
+                case 'underline':
+                    selectedElement.style.textDecoration = selectedElement.style.textDecoration === 'underline' ? 'none' : 'underline';
+                    break;
+            }
+        }
+    }
+
+    function applyAlignment(align) {
+        if (!selectedElement) return;
+        
+        if (selectedElement.hasAttribute('contenteditable')) {
+            document.execCommand('justify' + align, false, null);
+        } else {
+            selectedElement.style.textAlign = align;
+        }
+    }
+
+function newDocument() {
+    if (confirm('هل تريد إنشاء مستند جديد؟ سيتم فقدان التغييرات غير المحفوظة.')) {
+        workspaceContainer.innerHTML = '';
+        deselectElement();
+    }
+}
+
+function openFile() {
+    try {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.html,.htm';
+        
+        input.onchange = e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = event => {
+                workspaceContainer.innerHTML = event.target.result;
+            };
+            reader.readAsText(file);
+        };
+        
+        input.click();
+    } catch (error) {
+        alert('حدث خطأ أثناء فتح الملف: ' + error.message);
+    }
+}
+
+function saveFile() {
+    try {
+        const htmlContent = workspaceContainer.innerHTML;
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'مستندي.html';
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+    } catch (error) {
+        alert('حدث خطأ أثناء حفظ الملف: ' + error.message);
+    }
+}
+
+function exportFile() {
+    try {
+        const htmlContent = `<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>مستندي</title>
+</head>
+<body>
+${workspaceContainer.innerHTML}
+</body>
+</html>`;
+        
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'مستندي.html';
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+    } catch (error) {
+        alert('حدث خطأ أثناء التصدير: ' + error.message);
+    }
+}
+    // Zoom functions
+    function zoomIn() {
+        // Zoom in workspace
+        const currentZoom = parseFloat(workspaceContainer.style.zoom) || 1;
+        workspaceContainer.style.zoom = currentZoom + 0.1;
+    }
+
+    function zoomOut() {
+        // Zoom out workspace
+        const currentZoom = parseFloat(workspaceContainer.style.zoom) || 1;
+        if (currentZoom > 0.2) {
+            workspaceContainer.style.zoom = currentZoom - 0.1;
+        }
+    }
+
+    function resetZoom() {
+        // Reset zoom to 100%
+        workspaceContainer.style.zoom = 1;
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    // Element insertion functions
+    function insertTable() {
+        const rows = prompt('أدخل عدد الصفوف:', '3');
+        const cols = prompt('أدخل عدد الأعمدة:', '3');
+        
+        if (rows && cols) {
+            const table = document.createElement('table');
+            table.style.border = '1px solid #000';
+            table.style.borderCollapse = 'collapse';
+            
+            for (let i = 0; i < parseInt(rows); i++) {
+                const tr = document.createElement('tr');
+                
+                for (let j = 0; j < parseInt(cols); j++) {
+                    const td = document.createElement('td');
+                    td.style.border = '1px solid #000';
+                    td.style.padding = '5px';
+                    td.textContent = `صف ${i+1}, عمود ${j+1}`;
+                    tr.appendChild(td);
+                }
+                
+                table.appendChild(tr);
+            }
+            
+            const element = document.createElement('div');
+            element.className = 'workspace-element';
+            element.setAttribute('data-type', 'table');
+            element.appendChild(table);
+            
+            workspaceContainer.appendChild(element);
+            selectElement(element);
+        }
+    }
+
+    function insertLink() {
+        const url = prompt('أدخل رابط URL:', 'https://');
+        const text = prompt('أدخل نص الرابط:', 'رابط');
+        
+        if (url && text) {
+            const element = document.createElement('div');
+            element.className = 'workspace-element';
+            element.setAttribute('data-type', 'link');
+            element.innerHTML = `<a href="${url}" target="_blank">${text}</a>`;
+            
+            workspaceContainer.appendChild(element);
+            selectElement(element);
+        }
+    }
+
+    // Initialize element toolbar
+    setupElementToolbar();
+});
+// دالة جذب العناصر إلى الشبكة
+function snapToGrid(x, y) {
+    if (!editorSettings.gridSnap) return { x, y };
+    
+    const gridSize = editorSettings.gridSize;
+    return {
+        x: Math.round(x / gridSize) * gridSize,
+        y: Math.round(y / gridSize) * gridSize
+    };
+}
+
+// تعديل دالة dragElement لاستخدام الجذب إلى الشبكة
+function dragElement(e) {
+    if (isDragging && selectedElement) {
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        
+        // جذب الإحداثيات إلى الشبكة
+        const snapped = snapToGrid(initialElementX + dx, initialElementY + dy);
+        
+        selectedElement.style.left = snapped.x + 'px';
+        selectedElement.style.top = snapped.y + 'px';
+    }
+}
+// إعدادات المحرر
+const editorSettings = {
+    theme: 'light',
+    language: 'ar',
+    autoSave: false,
+    gridSnap: true,
+    gridSize: 10
+};
+
+function openSettings() {
+    const settingsModal = document.createElement('div');
+    settingsModal.className = 'modal';
+    settingsModal.innerHTML = `
+        <div class="modal-content" style="width: 500px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> إعدادات المحرر</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>المظهر</label>
+                    <select class="form-control" id="setting-theme">
+                        <option value="light">فاتح</option>
+                        <option value="dark">غامق</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>اللغة</label>
+                    <select class="form-control" id="setting-language">
+                        <option value="ar">العربية</option>
+                        <option value="en">الإنجليزية</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="setting-autosave" ${editorSettings.autoSave ? 'checked' : ''}>
+                        الحفظ التلقائي
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="setting-grid" ${editorSettings.gridSnap ? 'checked' : ''}>
+                        جذب إلى الشبكة
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>حجم الشبكة</label>
+                    <input type="number" class="form-control" id="setting-gridsize" value="${editorSettings.gridSize}" min="5" max="50">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary modal-cancel">إلغاء</button>
+                <button class="btn-primary modal-save">حفظ</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(settingsModal);
+    
+    // تعيين القيم الحالية
+    document.getElementById('setting-theme').value = editorSettings.theme;
+    document.getElementById('setting-language').value = editorSettings.language;
+    
+    // إغلاق النافذة
+    settingsModal.querySelector('.modal-close').addEventListener('click', () => {
+        settingsModal.remove();
+    });
+    
+    settingsModal.querySelector('.modal-cancel').addEventListener('click', () => {
+        settingsModal.remove();
+    });
+    
+    // حفظ الإعدادات
+    settingsModal.querySelector('.modal-save').addEventListener('click', () => {
+        editorSettings.theme = document.getElementById('setting-theme').value;
+        editorSettings.language = document.getElementById('setting-language').value;
+        editorSettings.autoSave = document.getElementById('setting-autosave').checked;
+        editorSettings.gridSnap = document.getElementById('setting-grid').checked;
+        editorSettings.gridSize = parseInt(document.getElementById('setting-gridsize').value);
+        
+        applySettings();
+        settingsModal.remove();
+    });
+    
+    // عرض النافذة
+    setTimeout(() => {
+        settingsModal.style.display = 'flex';
+    }, 10);
+}
+
+function applySettings() {
+    // تطبيق المظهر
+    document.body.setAttribute('data-theme', editorSettings.theme);
+    
+    // تطبيق اللغة (قد تحتاج إلى إعادة تحميل الصفحة)
+    document.documentElement.lang = editorSettings.language;
+    
+    // تطبيق إعدادات الشبكة
+    if (editorSettings.gridSnap) {
+        workspaceContainer.classList.add('grid-enabled');
+    } else {
+        workspaceContainer.classList.remove('grid-enabled');
+    }
+}
+// دالة التحقق من صحة HTML
+function validateHTML() {
+    try {
+        const html = workspaceContainer.innerHTML;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        const errors = Array.from(doc.querySelectorAll('parsererror'));
+        if (errors.length > 0) {
+            throw new Error('تحذير: قد يحتوي HTML على أخطاء في البنية');
+        }
+        
+        alert('HTML صالح ولا يحتوي على أخطاء في البنية');
+        return true;
+    } catch (error) {
+        alert(error.message);
+        return false;
+    }
+}
+// حفظ حالة العنصر المحدد
+function saveElementState(element) {
+    return {
+        html: element.innerHTML,
+        style: element.style.cssText,
+        attributes: Array.from(element.attributes).reduce((acc, attr) => {
+            acc[attr.name] = attr.value;
+            return acc;
+        }, {})
+    };
+}
+
+// استعادة حالة العنصر
+function restoreElementState(element, state) {
+    element.innerHTML = state.html;
+    element.style.cssText = state.style;
+    
+    // إزالة جميع السمات الحالية
+    Array.from(element.attributes).forEach(attr => {
+        element.removeAttribute(attr.name);
+    });
+    
+    // إضافة السمات المحفوظة
+    for (const [name, value] of Object.entries(state.attributes)) {
+        element.setAttribute(name, value);
+    }
+}
+// نظام النسخ والقص واللصق
+let clipboard = null;
+let isCutOperation = false;
+
+function executeMenuAction(action) {
+    switch(action) {
+        case 'copy':
+            if (selectedElement) {
+                clipboard = selectedElement.cloneNode(true);
+                isCutOperation = false;
+            }
+            break;
+        case 'cut':
+            if (selectedElement) {
+                clipboard = selectedElement.cloneNode(true);
+                isCutOperation = true;
+            }
+            break;
+        case 'paste':
+            if (clipboard) {
+                const clone = clipboard.cloneNode(true);
+                
+                // إزاحة العنصر الملصق قليلاً
+                const rect = clone.getBoundingClientRect();
+                clone.style.left = (parseInt(clone.style.left) || 0) + 20 + 'px';
+                clone.style.top = (parseInt(clone.style.top) || 0) + 20 + 'px';
+                
+                workspaceContainer.appendChild(clone);
+                selectElement(clone);
+                
+                // إذا كانت عملية قص، احذف العنصر الأصلي بعد اللصق
+                if (isCutOperation) {
+                    selectedElement.remove();
+                    deselectElement();
+                    clipboard = null;
+                    isCutOperation = false;
+                }
+            }
+            break;
+        // ... باقي الحالات ...
+    }
+}
+// نظام التراجع والإعادة
+const history = {
+    states: [],
+    currentIndex: -1,
+    
+    saveState: function() {
+        // حذف جميع الحالات بعد المؤشر الحالي
+        this.states = this.states.slice(0, this.currentIndex + 1);
+        
+        // حفظ الحالة الحالية
+        const state = workspaceContainer.innerHTML;
+        this.states.push(state);
+        this.currentIndex++;
+        
+        // تحديد حجم السجل (100 حالة كحد أقصى)
+        if (this.states.length > 100) {
+            this.states.shift();
+            this.currentIndex--;
+        }
+    },
+    
+    undo: function() {
+        if (this.currentIndex > 0) {
+            this.currentIndex--;
+            workspaceContainer.innerHTML = this.states[this.currentIndex];
+            return true;
+        }
+        return false;
+    },
+    
+    redo: function() {
+        if (this.currentIndex < this.states.length - 1) {
+            this.currentIndex++;
+            workspaceContainer.innerHTML = this.states[this.currentIndex];
+            return true;
+        }
+        return false;
+    }
+};
+
+// تعديل دالة initEditor لإضافة مستمعات لحفظ الحالات
+function initEditor() {
+    // ... الكود الحالي ...
+    
+    // إضافة مستمعات لحفظ حالات التراجع
+    workspaceContainer.addEventListener('DOMSubtreeModified', function() {
+        history.saveState();
+    });
+    
+    // منع حفظ الحالة عند التحديد فقط
+    workspaceContainer.addEventListener('click', function(e) {
+        if (e.target === workspaceContainer) {
+            history.saveState();
+        }
+    });
+    
+    // ... باقي الكود ...
+}
+
+// تعديل دوال التراجع والإعادة
+function executeMenuAction(action) {
+    switch(action) {
+        case 'undo':
+            if (!history.undo()) {
+                alert('لا يوجد المزيد من الإجراءات للتراجع عنها');
+            }
+            break;
+        case 'redo':
+            if (!history.redo()) {
+                alert('لا يوجد المزيد من الإجراءات للإعادة');
+            }
+            break;
+        // ... باقي الحالات ...
+    }
+}
+// دوال التكبير والتصغير المحسنة
+function zoomIn() {
+    const currentZoom = parseFloat(workspaceContainer.style.zoom) || 1;
+    const newZoom = Math.min(currentZoom + 0.1, 3); // الحد الأقصى للتكبير 300%
+    workspaceContainer.style.zoom = newZoom;
+    updateZoomStatus();
+}
+
+function zoomOut() {
+    const currentZoom = parseFloat(workspaceContainer.style.zoom) || 1;
+    const newZoom = Math.max(currentZoom - 0.1, 0.5); // الحد الأدنى للتصغير 50%
+    workspaceContainer.style.zoom = newZoom;
+    updateZoomStatus();
+}
+
+function resetZoom() {
+    workspaceContainer.style.zoom = 1;
+    updateZoomStatus();
+}
+
+function updateZoomStatus() {
+    const zoomLevel = (parseFloat(workspaceContainer.style.zoom) || 1) * 100;
+    document.getElementById('zoom-status').textContent = `${Math.round(zoomLevel)}%`;
+}
+
+    </script>
+</body>
+</html>
